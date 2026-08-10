@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FC, Fragment, useMemo } from 'react';
+import React, { FC, Fragment, useCallback, useMemo } from 'react';
 import { useLaunchStore } from '@gitroom/frontend/components/new-launch/store';
 import { useShallow } from 'zustand/react/shallow';
 import clsx from 'clsx';
@@ -92,11 +92,21 @@ export const InformationComponent: FC<{
 
   const showStripLinkWarning = stripLinkNames.length > 0;
 
-  const charsForIdentifier = useMemo(() => {
-    const xWeighted = weightedLength(text || '');
-    return (identifier: string) =>
-      identifier === 'x' ? xWeighted : totalChars;
-  }, [text, totalChars]);
+  const hasXIntegration = isGlobal
+    ? selectedIntegrations.some((p) => p.integration.identifier === 'x')
+    : currentIntegration?.identifier === 'x';
+
+  // twitter-text parsing is real work and this component re-renders on every
+  // keystroke, so only run it when an X integration is actually in play.
+  const xWeightedChars = useMemo(() => {
+    return hasXIntegration ? weightedLength(text || '') : 0;
+  }, [hasXIntegration, text]);
+
+  const charsForIdentifier = useCallback(
+    (identifier: string) =>
+      identifier === 'x' ? xWeightedChars : totalChars,
+    [xWeightedChars, totalChars]
+  );
 
   const isInternal = useMemo(() => {
     if (!isGlobal) {
