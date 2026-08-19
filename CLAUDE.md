@@ -73,3 +73,19 @@ const useCommunity = () => {
 - Workflows files can never be changed if they are already in origin/main, because changing a workflow will fail all its activities, instead create a new workflow with the version, and everywhere the workflow being called, change it to the new workflow version.
 - Workflows activities parameters cannot be changed, as it will break the workflow, if we need to change the parameters, if we need to change the parameters, we need to create a new activity with the new parameters, and then create a new workflow that uses the new activity.
 - Code must always be generic, there can't be a way that a specific logic, let's say facebook or instagram, appear in a file that use a generic logic, instead, we need to edit the interface of the provider, add another function, and then generically call it from the generic code, and then implement the specific logic in the provider implementation. we can't have something like if(facebookProvider) {} inside a non facebook provider file. 
+
+## Mémoire entre sessions (Claude Code + Cline, interchangeable)
+
+**Store mémoire unique** : `.remember/` (accumulateur local, non commité, perms 600) : journaux
+`today-YYYY-MM-DD.md`, `now.md`, `recent.md`, `archive.md`. Il est utilisé tel quel, que l'on
+travaille avec Claude Code ou avec Cline (y compris avec des modèles non-Anthropic) — **pas de
+deuxième système de mémoire parallèle**.
+
+**Fichiers d'instructions** : `AGENTS.md` (Cline / modèles non-Anthropic) et `CLAUDE.md`
+(Claude Code) décrivent tous deux ce même store `.remember/` et la même règle de promotion.
+
+**Règle (esprit memory-merger)** : on accumule les appris au fil de l'eau dans `.remember/` ;
+quand un apprentissage devient mature et réutilisable, on le « promeut » dans ce fichier
+d'instructions (dédup, zéro redondance, scannabilité maximale) et on signale la promotion dans
+le journal mémoire. Le fichier d'instructions reste la référence « stable » à relire ;
+`.remember/` reste l'accumulateur.
